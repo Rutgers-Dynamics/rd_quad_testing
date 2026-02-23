@@ -286,20 +286,20 @@
     </worldbody>
 
     <actuator>
-        <motor name="motor-l1-j1" joint="Leg-1-j1" forcerange="-20 20" ctrlrange="-20 20"/>
-        <motor name="motor-l1-j2" joint="Leg-1-j2" forcerange="-20 20" ctrlrange="-20 20"/>
-        <motor name="motor-l1-j3" joint="Leg-1-j3" forcerange="-20 20" ctrlrange="-20 20"/>
+        <velocity name="velocity-l1-j1" joint="Leg-1-j1" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="velocity-l1-j2" joint="Leg-1-j2" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="velocity-l1-j3" joint="Leg-1-j3" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
 
-        <motor name="motor-l2-j1" joint="Leg-2-j1" forcerange="-20 20" ctrlrange="-20 20"/>
-        <motor name="motor-l2-j2" joint="Leg-2-j2" forcerange="-20 20" ctrlrange="-20 20"/>
-        <motor name="motor-l2-j3" joint="Leg-2-j3" forcerange="-20 20" ctrlrange="-20 20"/>
+        <velocity name="velocity-l2-j1" joint="Leg-2-j1" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="velocity-l2-j2" joint="Leg-2-j2" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="velocity-l2-j3" joint="Leg-2-j3" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
 
-        <motor name="motor-l3-j1" joint="Leg-3-j1" forcerange="-20 20" ctrlrange="-20 20"/>
-        <motor name="motor-l3-j2" joint="Leg-3-j2" forcerange="-20 20" ctrlrange="-20 20"/>
-        <motor name="motor-l3-j3" joint="Leg-3-j3" forcerange="-20 20" ctrlrange="-20 20"/>
+        <velocity name="velocity-l3-j1" joint="Leg-3-j1" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="velocity-l3-j2" joint="Leg-3-j2" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="velocity-l3-j3" joint="Leg-3-j3" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
 
-        <motor name="motor-l4-j1" joint="Leg-4-j1" forcerange="-20 20" ctrlrange="-20 20"/>
-        <motor name="motor-l4-j2" joint="Leg-4-j2" forcerange="-20 20" ctrlrange="-20 20"/>
-        <motor name="motor-l4-j3" joint="Leg-4-j3" forcerange="-20 20" ctrlrange="-20 20"/>
+        <velocity name="velocity-l4-j1" joint="Leg-4-j1" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="velocity-l4-j2" joint="Leg-4-j2" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="velocity-l4-j3" joint="Leg-4-j3" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
     </actuator>
 </mujoco>
