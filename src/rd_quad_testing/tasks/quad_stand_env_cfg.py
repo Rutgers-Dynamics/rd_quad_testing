@@ -1,5 +1,7 @@
 import math
 
+import numpy as np
+import torch
 from mjlab.envs import ManagerBasedRlEnvCfg, ManagerBasedRlEnv
 from mjlab.envs.mdp.actions import JointVelocityActionCfg
 from mjlab.managers.observation_manager import ObservationGroupCfg, ObservationTermCfg
@@ -8,6 +10,7 @@ from mjlab.managers.termination_manager import TerminationTermCfg
 from mjlab.managers.event_manager import EventTermCfg
 from mjlab.managers.scene_entity_config import SceneEntityCfg
 from mjlab.scene import SceneCfg
+from mjlab.sensor import ContactSensorCfg, ContactMatch
 from mjlab.sim import MujocoCfg, SimulationCfg
 from mjlab.terrains import TerrainImporterCfg
 from mjlab.utils.noise import UniformNoiseCfg
@@ -44,6 +47,31 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
         ),
         njmax=1000,
     )
+
+    chassis_contact_cfg = ContactSensorCfg(
+        name="bad_ground_contact",
+        primary=ContactMatch(
+            mode="geom",
+            pattern=("Chassis-Frame-v2_geom", "Leg-Right-Thigh-v3-1_geom", "Leg-Right-Thigh-v3_geom", "Leg-Left-Thigh-v3-1_geom", "Leg-Left-Thigh-v3_geom"),
+            entity="robot",
+        ),
+        secondary=ContactMatch(
+            mode="body",
+            pattern="terrain"
+        ),
+        fields=("found",),
+        reduce="none",
+    )
+
+    self_collision_cfg = ContactSensorCfg(
+        name="self_collision",
+        primary=ContactMatch(mode="subtree", pattern="Chassis-Frame-v2", entity="robot"),
+        secondary=ContactMatch(mode="subtree", pattern="Chassis-Frame-v2", entity="robot"),
+        fields=("found",),
+        reduce="none",
+        num_slots=1,
+    )
+
     """
     Actions
     """
@@ -95,12 +123,13 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
 
     def height(env):
         # print(env.sim.data.qpos[0,2])
-        return (env.sim.data.qpos[:,2]-1.25) **2
+        raw_height_diff = abs(env.sim.data.qpos[:,2]-1.25)
+        return torch.where(raw_height_diff < 0.075, 1, -raw_height_diff)
 
     rewards = {
         "height": RewardTermCfg(
             func=height,
-            weight=-1.0,
+            weight=1.0,
         ),
         "chassis_pose": RewardTermCfg(
             func=mdp.flat_orientation_l2,
@@ -118,10 +147,10 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
 
     terminations = {
         "time_out": TerminationTermCfg(func=mdp.time_out, time_out=True),
-        # "fell_over": TerminationTermCfg(
-        #     func=mdp.bad_orientation,
-        #     params={"limit_angle": math.radians(20)},
-        # ),
+        "chassis_touch_ground": TerminationTermCfg(
+            func=mdp_vel.illegal_contact,
+            params={"sensor_name": "bad_ground_contact"},
+        )
     }
 
     """
@@ -140,7 +169,7 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
         ),
     }
 
-    return ManagerBasedRlEnvCfg(
+    cfg= ManagerBasedRlEnvCfg(
         scene=scene_cfg,
         observations=observations,
         actions=actions,
@@ -150,9 +179,12 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
         sim=sim_cfg,
         viewer=viewer_cfg,
         decimation=1,
-        episode_length_s=1000 if play else 10.0,
+        episode_length_s=1000 if play else 1.0,
     )
 
+    cfg.scene.sensors = (chassis_contact_cfg, self_collision_cfg)
+
+    return cfg
 
 
 
