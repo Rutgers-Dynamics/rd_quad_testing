@@ -56,10 +56,12 @@
         <mesh name="Chassis-Frame-v2" file="meshes/Chassis-Frame-v2.stl" scale="0.001 0.001 0.001" />
     </asset>
     <worldbody>
-        <light directional="true" pos="-0.5 0.5 3" dir="0 0 -1" />
-        <geom pos="0 0 0" size="1 1 1" type="plane" rgba="1 0.83 0.61 0.5" />
+<!--        <light directional="true" pos="-0.5 0.5 3" dir="0 0 -1" />-->
+<!--        <geom pos="0 0 0" size="1 1 1" type="plane" rgba="1 0.83 0.61 0.5" />-->
         <body name="Chassis-Frame-v2" pos="0.21404679310212796 0.29430758326344286 0.3" euler="1.57079633 0 0">
             <joint type="free"/>
+            <site name="imu" pos="-0.25 -0.05 0" size="0.01 0.01 0.01" rgba="1 0 0 1"/>
+
             <geom name="Chassis-Frame-v2_geom" type="mesh" mesh="Chassis-Frame-v2" pos="0 0 0" euler="0 0 0" />
             <inertial mass="2.188467814304952" pos="-0.21590000000000262 -0.061302900000000264 -1.0770130813347544e-15" fullinertia="0.024016605745958375 0.0780131734318526 0.06893284191476207 -7.074098904476376e-17 -1.809181063845675e-15 -1.2129857921309587e-16" />
             <body name="Luis-Side-Body-Panel-v2" pos="-0.21590152198129886 -0.06131499264229799 -0.1469943459212971" euler="0.0 -9.860761315262648e-31 -5.081436361562415e-33">
@@ -286,20 +288,25 @@
     </worldbody>
 
     <actuator>
-        <velocity name="velocity-l1-j1" joint="Leg-1-j1" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
-        <velocity name="velocity-l1-j2" joint="Leg-1-j2" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
-        <velocity name="velocity-l1-j3" joint="Leg-1-j3" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="Leg-1-j1" joint="Leg-1-j1" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="Leg-1-j2" joint="Leg-1-j2" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="Leg-1-j3" joint="Leg-1-j3" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
 
-        <velocity name="velocity-l2-j1" joint="Leg-2-j1" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
-        <velocity name="velocity-l2-j2" joint="Leg-2-j2" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
-        <velocity name="velocity-l2-j3" joint="Leg-2-j3" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="Leg-2-j1" joint="Leg-2-j1" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="Leg-2-j2" joint="Leg-2-j2" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="Leg-2-j3" joint="Leg-2-j3" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
 
-        <velocity name="velocity-l3-j1" joint="Leg-3-j1" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
-        <velocity name="velocity-l3-j2" joint="Leg-3-j2" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
-        <velocity name="velocity-l3-j3" joint="Leg-3-j3" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="Leg-3-j1" joint="Leg-3-j1" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="Leg-3-j2" joint="Leg-3-j2" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="Leg-3-j3" joint="Leg-3-j3" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
 
-        <velocity name="velocity-l4-j1" joint="Leg-4-j1" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
-        <velocity name="velocity-l4-j2" joint="Leg-4-j2" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
-        <velocity name="velocity-l4-j3" joint="Leg-4-j3" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="Leg-4-j1" joint="Leg-4-j1" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="Leg-4-j2" joint="Leg-4-j2" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
+        <velocity name="Leg-4-j3" joint="Leg-4-j3" forcerange="-20 20" ctrlrange="-30 30" kv="1.56"/>
     </actuator>
+
+    <sensor>
+        <gyro name="imu_gyro" site="imu"/>
+        <accelerometer name="imu_acc" site="imu"/>
+    </sensor>
 </mujoco>
