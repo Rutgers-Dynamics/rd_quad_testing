@@ -16,6 +16,7 @@ from mjlab.terrains import TerrainImporterCfg
 from mjlab.utils.noise import UniformNoiseCfg
 from mjlab.viewer import ViewerConfig
 from mjlab.envs import mdp
+from mjlab.envs.mdp import rewards
 import mjlab.tasks.velocity.mdp as mdp_vel
 
 from rd_quad_testing.robot.quad_constants import get_robot_cfg
@@ -121,10 +122,14 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
     Rewards
     """
 
-    def height(env):
-        # print(env.sim.data.qpos[0,2])
-        raw_height_diff = abs(env.sim.data.qpos[:,2]-1.25)
-        return torch.where(raw_height_diff < 0.075, 1, -raw_height_diff)
+    def height(env, target_height = 0.75, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot", site_names=("imu",))) -> torch.Tensor:
+        asset = env.scene[asset_cfg.name]
+        # proj_grav = asset.data.projected_gravity_b[:,2] **2
+        height = asset.data.site_pos_w[:,0,2]
+        raw_height_diff = abs(height-target_height)
+        height_tfm = torch.where(raw_height_diff < 0.075, 1, -raw_height_diff)
+        # return  height_tfm #proj_grav *
+        return height_tfm
 
     rewards = {
         "height": RewardTermCfg(
@@ -133,12 +138,14 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
         ),
         "chassis_pose": RewardTermCfg(
             func=mdp.flat_orientation_l2,
-            weight=1.5,
+            weight=1.25,
             params={
                 "asset_cfg": SceneEntityCfg("robot", body_names=("Chassis-Frame-v2",)),
             }
         ),
-        "action_rate": RewardTermCfg(func=mdp.action_rate_l2, weight=-0.02)
+        "action_rate": RewardTermCfg(func=mdp.action_rate_l2, weight=-0.05),
+        "is_terminated": RewardTermCfg(func=mdp.rewards.is_terminated, weight=-1),
+        "is_alive": RewardTermCfg(func=mdp.rewards.is_alive, weight=0.01),
     }
 
     """
@@ -179,7 +186,7 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
         sim=sim_cfg,
         viewer=viewer_cfg,
         decimation=1,
-        episode_length_s=1000 if play else 1.0,
+        episode_length_s=1000 if play else 10.0,
     )
 
     cfg.scene.sensors = (chassis_contact_cfg, self_collision_cfg)

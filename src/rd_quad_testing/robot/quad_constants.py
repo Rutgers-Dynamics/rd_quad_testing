@@ -4,6 +4,7 @@ import os
 
 from mjlab.actuator import XmlVelocityActuator, XmlVelocityActuatorCfg
 from mjlab.entity import Entity, EntityCfg, EntityArticulationInfoCfg
+from mjlab.managers import SceneEntityCfg
 from mjlab.scene import SceneCfg, Scene
 from mjlab.terrains import TerrainImporterCfg
 
@@ -25,7 +26,7 @@ def get_robot_cfg() -> EntityCfg:
     articulation = EntityArticulationInfoCfg(actuators=actuators)
     return EntityCfg(
         spec_fn=get_spec,
-        articulation=articulation
+        articulation=articulation,
     )
 
 
@@ -38,4 +39,9 @@ if __name__ == "__main__":
     )
 
     scene = Scene(SCENE_CFG, device="cuda:0")
+
+    print(scene["robot"].find_sites((".*",)))
+    # print(scene["robot"].data.site_pos_w)
+    # print(SceneEntityCfg("robot", site_names=("imu",)).site_names)
+
     viewer.launch(scene.compile())
