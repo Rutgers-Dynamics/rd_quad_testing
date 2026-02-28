@@ -152,6 +152,16 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
         # return  height_tfm #proj_grav *
         return height_tfm
 
+    def feet_ground_rew(env):
+        sensor = env.scene["feet_ground"]
+        assert sensor is not None
+        return 0.25*torch.sum(sensor.data.found, 1)
+
+    def self_contact_rew(env):
+        sensor = env.scene["self_collision"]
+        assert sensor is not None
+        return 0.25*torch.sum(sensor.data.found, 1)
+
     rewards = {
         "height": RewardTermCfg(
             func=height,
@@ -167,6 +177,8 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
         "action_rate": RewardTermCfg(func=mdp.action_rate_l2, weight=-0.05),
         "is_terminated": RewardTermCfg(func=mdp.rewards.is_terminated, weight=-1),
         "is_alive": RewardTermCfg(func=mdp.rewards.is_alive, weight=0.01),
+        "feet_ground_contact": RewardTermCfg(func=feet_ground_rew, weight=1),
+        "self_contact_penalty": RewardTermCfg(func=self_contact_rew, weight=-1)
     }
 
     """
