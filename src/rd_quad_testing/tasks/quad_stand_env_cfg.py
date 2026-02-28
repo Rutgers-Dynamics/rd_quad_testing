@@ -53,7 +53,7 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
         name="bad_ground_contact",
         primary=ContactMatch(
             mode="geom",
-            pattern=("Chassis-Frame-v2_geom", "Leg-Right-Thigh-v3-1_geom", "Leg-Right-Thigh-v3_geom", "Leg-Left-Thigh-v3-1_geom", "Leg-Left-Thigh-v3_geom"),
+            pattern=("chassis_collision", "^.*?hip_.*?collision$", "^.*?knee_collision$"),
             entity="robot",
         ),
         secondary=ContactMatch(
@@ -73,6 +73,17 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
         num_slots=1,
     )
 
+    foot_contact_cfg = ContactSensorCfg(
+        name="feet_ground",
+        primary=ContactMatch(mode="geom", pattern=r".*?foot_collision$", entity="robot"),
+        secondary=ContactMatch(mode="body", pattern="terrain"),
+        fields=("found",),
+        track_air_time=True,
+        reduce="none",
+        num_slots=1,
+        history_length=1
+    )
+
     """
     Actions
     """
@@ -86,18 +97,27 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
     """
     Observations
     """
+
+    def contact_obs(env):
+        sensor = env.scene["feet_ground"]
+        assert sensor is not None
+        return torch.concat((sensor.data.found, sensor.data.current_air_time), dim=1)
+
     policy_terms = {
         "joint_pos": ObservationTermCfg(
-            func=lambda env: env.sim.data.qpos[:,7: ], # 7 entries for the free joint we want to exclude
+            func=lambda env: env.sim.data.qpos[:, 7:],  # 7 entries for the free joint we want to exclude
             noise=UniformNoiseCfg(n_min=-0.01, n_max=0.01)
         ),
         "joint_vel": ObservationTermCfg(
-            func=lambda env: env.sim.data.qvel[:,6: ], # 6 entries for the free joint we want to exclude
+            func=lambda env: env.sim.data.qvel[:, 6:],  # 6 entries for the free joint we want to exclude
             noise=UniformNoiseCfg(n_min=-1.0, n_max=1.0)
         ),
         "body_orientation": ObservationTermCfg(
-            func=lambda env: env.sim.data.qpos[:,3:7],
+            func=lambda env: env.sim.data.qpos[:, 3:7],
             noise=UniformNoiseCfg(n_min=-0.01, n_max=0.01),
+        ),
+        "feet_ground_contact": ObservationTermCfg(
+            func=contact_obs
         )
     }
 
@@ -122,11 +142,12 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
     Rewards
     """
 
-    def height(env, target_height = 0.75, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot", site_names=("imu",))) -> torch.Tensor:
+    def height(env, target_height=0.75,
+               asset_cfg: SceneEntityCfg = SceneEntityCfg("robot", site_names=("imu",))) -> torch.Tensor:
         asset = env.scene[asset_cfg.name]
         # proj_grav = asset.data.projected_gravity_b[:,2] **2
-        height = asset.data.site_pos_w[:,0,2]
-        raw_height_diff = abs(height-target_height)
+        height = asset.data.site_pos_w[:, 0, 2]
+        raw_height_diff = abs(height - target_height)
         height_tfm = torch.where(raw_height_diff < 0.075, 1, -raw_height_diff)
         # return  height_tfm #proj_grav *
         return height_tfm
@@ -176,7 +197,7 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
         ),
     }
 
-    cfg= ManagerBasedRlEnvCfg(
+    cfg = ManagerBasedRlEnvCfg(
         scene=scene_cfg,
         observations=observations,
         actions=actions,
@@ -188,10 +209,6 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
         decimation=1,
         episode_length_s=1000 if play else 10.0,
     )
-
-    cfg.scene.sensors = (chassis_contact_cfg, self_collision_cfg)
+    cfg.scene.sensors = (chassis_contact_cfg, self_collision_cfg, foot_contact_cfg)
 
     return cfg
-
-
-
