@@ -10,15 +10,16 @@ def ppo_runner_cfg() -> RslRlOnPolicyRunnerCfg:
             hidden_dims=(1024, 512, 128),
             activation="elu",
             obs_normalization=True,
-            stochastic=True,
-            init_noise_std=1.0,
+            distribution_cfg={
+                "class_name": "GaussianDistribution",
+                "init_std": 1.0,
+                "std_type": "scalar",
+            }
         ),
         critic=RslRlModelCfg(
             hidden_dims=(1024, 512, 128),
             activation="elu",
             obs_normalization=True,
-            stochastic=False,
-            init_noise_std=1.0,
         ),
         algorithm=RslRlPpoAlgorithmCfg(
             value_loss_coef=1.0,
@@ -37,5 +38,5 @@ def ppo_runner_cfg() -> RslRlOnPolicyRunnerCfg:
         experiment_name="mjlab_quad_stand",
         save_interval=200,
         num_steps_per_env=50,
-        max_iterations=1_000,
+        max_iterations=600,
     )

@@ -12,11 +12,10 @@ from mjlab.managers.scene_entity_config import SceneEntityCfg
 from mjlab.scene import SceneCfg
 from mjlab.sensor import ContactSensorCfg, ContactMatch
 from mjlab.sim import MujocoCfg, SimulationCfg
-from mjlab.terrains import TerrainImporterCfg
+from mjlab.terrains import TerrainEntityCfg
 from mjlab.utils.noise import UniformNoiseCfg
 from mjlab.viewer import ViewerConfig
 from mjlab.envs import mdp
-from mjlab.envs.mdp import rewards
 import mjlab.tasks.velocity.mdp as mdp_vel
 
 from rd_quad_testing.robot.quad_constants import get_robot_cfg
@@ -24,10 +23,10 @@ from rd_quad_testing.robot.quad_constants import get_robot_cfg
 
 def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
     scene_cfg = SceneCfg(
-        terrain=TerrainImporterCfg(
+        terrain=TerrainEntityCfg(
             terrain_type="plane",
         ),
-        num_envs=16,
+        num_envs=1,
         extent=1.0,
         entities={"robot": get_robot_cfg()},
     )
@@ -43,10 +42,10 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
 
     sim_cfg = SimulationCfg(
         mujoco=MujocoCfg(
-            timestep=0.01,
-            iterations=1,
+            timestep=0.005,
         ),
         njmax=1000,
+        nconmax=1000,
     )
 
     chassis_contact_cfg = ContactSensorCfg(
@@ -81,7 +80,6 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
         track_air_time=True,
         reduce="none",
         num_slots=1,
-        history_length=1
     )
 
     """
@@ -142,15 +140,16 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
     Rewards
     """
 
-    def height(env, target_height=0.75,
+    def height(env, target_height=0.6,
                asset_cfg: SceneEntityCfg = SceneEntityCfg("robot", site_names=("imu",))) -> torch.Tensor:
         asset = env.scene[asset_cfg.name]
         # proj_grav = asset.data.projected_gravity_b[:,2] **2
         height = asset.data.site_pos_w[:, 0, 2]
         raw_height_diff = abs(height - target_height)
-        height_tfm = torch.where(raw_height_diff < 0.075, 1, -raw_height_diff)
+        height_tfm = torch.where(raw_height_diff < 0.05, 0, -raw_height_diff)
         # return  height_tfm #proj_grav *
         return height_tfm
+        # return raw_height_diff
 
     def feet_ground_rew(env):
         sensor = env.scene["feet_ground"]
@@ -218,8 +217,8 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
         terminations=terminations,
         sim=sim_cfg,
         viewer=viewer_cfg,
-        decimation=1,
-        episode_length_s=1000 if play else 10.0,
+        decimation=4,
+        episode_length_s=10.0 if play else 10.0,
     )
     cfg.scene.sensors = (chassis_contact_cfg, self_collision_cfg, foot_contact_cfg)
 

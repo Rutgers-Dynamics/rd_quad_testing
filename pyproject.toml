@@ -12,7 +12,7 @@ authors = [
 ]
 requires-python = ">=3.12,<3.14"
 dependencies = [
-    "mjlab",
+    "mjlab==1.2.0",
     "torch"
 ]
 

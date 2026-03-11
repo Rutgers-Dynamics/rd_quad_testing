@@ -6,7 +6,7 @@ from mjlab.actuator import XmlVelocityActuator, XmlVelocityActuatorCfg
 from mjlab.entity import Entity, EntityCfg, EntityArticulationInfoCfg
 from mjlab.managers import SceneEntityCfg
 from mjlab.scene import SceneCfg, Scene
-from mjlab.terrains import TerrainImporterCfg
+from mjlab.terrains import TerrainEntityCfg
 
 XML_PATH: Path = Path(os.path.dirname(__file__)) / "Quadruped.xml"
 assert XML_PATH.exists(), f"XML not found: {XML_PATH}"
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     import mujoco.viewer as viewer
 
     SCENE_CFG = SceneCfg(
-        terrain=TerrainImporterCfg(terrain_type="plane"),
+        terrain=TerrainEntityCfg(terrain_type="plane"),
         entities={"robot": get_robot_cfg()}
     )
 
