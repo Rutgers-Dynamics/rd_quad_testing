@@ -1,8 +1,5 @@
-import math
-
-import numpy as np
 import torch
-from mjlab.envs import ManagerBasedRlEnvCfg, ManagerBasedRlEnv
+from mjlab.envs import ManagerBasedRlEnvCfg
 from mjlab.envs.mdp.actions import JointVelocityActionCfg
 from mjlab.managers.observation_manager import ObservationGroupCfg, ObservationTermCfg
 from mjlab.managers.reward_manager import RewardTermCfg
