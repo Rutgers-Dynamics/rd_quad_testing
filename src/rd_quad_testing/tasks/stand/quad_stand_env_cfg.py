@@ -83,7 +83,7 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
     Actions
     """
     actions = {
-        "joint_pos": JointVelocityActionCfg(
+        "joint_vel": JointVelocityActionCfg(
             entity_name="robot",
             actuator_names=(".*",),
             scale=30.0
