@@ -203,6 +203,21 @@ def env_cfg(play=False) -> ManagerBasedRlEnvCfg:
                 "velocity_range": (-0.1, 0.1),
             },
         ),
+        "push_robot": EventTermCfg(
+            func=mdp.push_by_setting_velocity,
+            mode="interval",
+            interval_range_s=(1.0, 5.0),
+            params={
+                "velocity_range": {
+                    "x": (-0.5, 0.5),
+                    "y": (-0.5, 0.5),
+                    "z": (-0.4, 0.4),
+                    "roll": (-0.52, 0.52),
+                    "pitch": (-0.52, 0.52),
+                    "yaw": (-0.78, 0.78),
+                },
+            }
+        ),
     }
 
     cfg = ManagerBasedRlEnvCfg(
